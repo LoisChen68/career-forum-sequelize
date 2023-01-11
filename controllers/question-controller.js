@@ -1,8 +1,20 @@
+const { getOffset } = require('../helpers/pagination-helper')
 const { Question } = require('../models')
 
 const questionController = {
   getQuestions: (req, res, next) => {
-    res.json('getQuestions')
+    const DEFAULT_PAGE = 1
+    const DEFAULT_LIMIT = 10
+    const page = Number(req.query.page) || DEFAULT_PAGE
+    const limit = Number(req.query.limit) || DEFAULT_LIMIT
+    const offset = getOffset(limit, page)
+    Question.findAndCountAll({ limit, offset })
+      .then(questionsData => {
+        const count = questionsData.count
+        const questions = questionsData.rows
+        res.json({ count, limit, page, questions })
+      })
+      .catch(err => next(err))
   },
   getQuestion: (req, res, next) => {
     res.json('getQuestion')
