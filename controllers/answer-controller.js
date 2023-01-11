@@ -1,12 +1,11 @@
+const { Answer } = require('../models')
+
 const answerController = {
   getAnswers: (req, res, next) => {
     res.json('getAnswers')
   },
   getAnswer: (req, res, next) => {
     res.json('getAnswer')
-  },
-  postAnswer: (req, res, next) => {
-    res.json('postAnswer')
   },
   putAnswer: (req, res, next) => {
     res.json('putAnswer')
