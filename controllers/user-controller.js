@@ -65,7 +65,21 @@ const userController = {
       .catch(err => next(err))
   },
   getUser: (req, res, next) => {
-    res.json('getUser')
+    const userId = req.params.id
+    User.findByPk(userId, {
+      attributes: { exclude: ['password', 'isAdmin', 'isSuspended'] }
+    })
+      .then(user => {
+        if (!user) return res.status(404).json({
+          title: "user is not found"
+        })
+        if (user.deletedAt) return res.status(404).json({
+          title: 'user is not found',
+          message: 'user is deleted'
+        })
+        res.json(user)
+      })
+      .catch(err => next(err))
   },
   putUser: (req, res, next) => {
     res.json('putUser')
