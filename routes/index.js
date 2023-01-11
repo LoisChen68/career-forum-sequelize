@@ -4,13 +4,19 @@ const users = require('./modules/user')
 const admin = require('./modules/admin')
 const question = require('./modules/question')
 const answer = require('./modules/answer')
+const userController = require('../controllers/user-controller')
+const passport = require('../config/passport')
 
+const { authenticated } = require('../middleware/api-auth')
 const { apiErrorHandler } = require('../middleware/error-handle')
 
-router.use('/users', users)
+router.post('/users/login', passport.authenticate('local', { session: false }), userController.login)
+router.post('/users/register', userController.register)
+
+router.use('/users', authenticated, users)
 router.use('/admin', admin)
-router.use('/questions', question)
-router.use('/answers', answer)
+router.use('/questions', authenticated, question)
+router.use('/answers', authenticated, answer)
 router.use('/', apiErrorHandler)
 
 module.exports = router

@@ -1,10 +1,40 @@
 const passport = require('passport')
+const LocalStrategy = require('passport-local')
 const passportJWT = require('passport-jwt')
-
+const bcrypt = require('bcryptjs')
 const { User } = require('../models')
 
 const JWTStrategy = passportJWT.Strategy
 const ExtractJWT = passportJWT.ExtractJwt
+
+// set up Passport strategy
+passport.use(new LocalStrategy(
+  // customize user field
+  {
+    usernameField: 'email',
+    passwordField: 'password'
+  },
+  // authenticate user
+  (email, password, cb) => {
+    User.findOne({ where: { email } })
+      .then(user => {
+        if (!user) {
+          const error = new Error('Incorrect email or password')
+          error.statusCode = 400
+          cb(error)
+          return
+        }
+        bcrypt.compare(password, user.password).then(res => {
+          if (!res) {
+            const error = new Error('Incorrect email or password')
+            error.statusCode = 400
+            cb(error)
+          }
+          return cb(null, user)
+        })
+      })
+  }
+))
 
 const jwtOptions = {
   jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
