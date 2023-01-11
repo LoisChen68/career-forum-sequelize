@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const { User } = require('../models')
 
@@ -47,7 +48,43 @@ const userController = {
       .catch(err => next(err))
   },
   login: (req, res, next) => {
-    res.json('login')
+    const { email, password } = req.body
+    User.findOne({
+      attributes: ['email', 'password', 'approvalStatus'],
+      where: { email }
+    })
+      .then(async user => {
+        if (!user) return res.status(400).json({
+          type: 'Login failed',
+          title: 'Incorrect email or password',
+          field_errors: {
+            email: 'incorrect',
+            password: 'incorrect',
+          }
+        })
+        const isCorrectPassword = await bcrypt.compare(password, user.password)
+        if (!isCorrectPassword) return res.status(400).json({
+          type: 'Login failed',
+          title: 'Incorrect email or password',
+          field_errors: {
+            email: 'incorrect',
+            password: 'incorrect',
+          }
+        })
+        if (user.approvalStatus !== 'approved') {
+          res.status(400).json({
+            type: 'Login failed',
+            title: 'Unapproved user',
+            field_errors: {
+              approvalStatus: 'must be approved',
+            }
+          })
+        } else if (user.approvalStatus === 'approved') {
+          const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET, { expiresIn: '30d' })
+          return res.json({ token })
+        }
+      })
+      .catch(err => next(err))
   },
   getCurrentUser: (req, res, next) => {
     res.json('getCurrentUser')
