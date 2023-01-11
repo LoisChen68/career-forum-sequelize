@@ -47,7 +47,7 @@ const questionController = {
       .then(([question, answer]) => {
         if (!question) res.status(404).json({
           status: 'error',
-          message: 'question is not found'
+          message: 'The question is not found.'
         })
         const { ...data } = question.toJSON()
         data.answerCount = answer.count
@@ -87,7 +87,7 @@ const questionController = {
     const userId = req.user.id
     if (!content || !title) return res.status(400).json({
       status: 'error',
-      message: 'title and content is required',
+      message: 'Title and content is required.',
     })
     Question.create({
       title,
@@ -110,11 +110,11 @@ const questionController = {
       .then(question => {
         if (!question) return res.status(404).json({
           status: 'error',
-          message: 'question is not found'
+          message: 'The question is not found.'
         })
       })
     if (!content) return res.status(400).json({
-      title: 'content is required'
+      title: 'Content is required.'
     })
     Answer.create({
       content,
@@ -128,11 +128,63 @@ const questionController = {
       }))
       .catch(err => next(err))
   },
+  // PUT api/question/:id 修改問題
   putQuestion: (req, res, next) => {
-    res.json('putQuestion')
+    const questionId = req.params.id
+    const userId = req.user.id
+    const { title, content } = req.body
+    Question.findByPk(questionId)
+      .then(question => {
+        if (!question) return res.status(404).json({
+          status: 'error',
+          message: 'The question is not found.'
+        })
+        if (question.userId !== userId) return res.status(403).json({
+          status: 'error',
+          message: 'Permission denied.'
+        })
+        if (!title || !content) return res.status(400).json({
+          status: 'error',
+          message: 'Title and content is required.'
+        })
+        question.update({
+          title,
+          content
+        })
+        return res.json({
+          status: 'success',
+          message: '成功修改回答',
+          question
+        })
+      })
+      .catch(err => next(err))
   },
+  // DELETE api/question/:id 刪除問題
   deleteQuestion: (req, res, next) => {
-    res.json('deleteQuestion')
+    const questionId = req.params.id
+    const userId = req.user.id
+    // 刪除時連同關聯回答一併刪除
+    Question.findByPk(questionId)
+      .then(async question => {
+        if (!question) return res.status(404).json({
+          status: 'error',
+          message: 'The question is not found.'
+        })
+        if (question.userId !== userId) return res.status(403).json({
+          status: 'error',
+          message: 'Permission denied.'
+        })
+        await Answer.destroy({
+          where: { questionId }
+        })
+        return question.destroy()
+      })
+      .then(question => res.json({
+        status: 'success',
+        message: '成功刪除問題',
+        question
+      }))
+      .catch(err => next(err))
   }
 }
 
