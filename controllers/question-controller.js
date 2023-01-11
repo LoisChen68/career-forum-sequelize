@@ -1,3 +1,5 @@
+const { Question } = require('../models')
+
 const questionController = {
   getQuestions: (req, res, next) => {
     res.json('getQuestions')
@@ -9,7 +11,18 @@ const questionController = {
     res.json('getAnswers')
   },
   postQuestion: (req, res, next) => {
-    res.json('postQuestion')
+    const { title, content } = req.body
+    const userId = req.user.id
+    if (!content || !title) return res.status(401).json({
+      title: '不得為空'
+    })
+    Question.create({
+      title,
+      content,
+      userId
+    })
+      .then(question => res.json(question))
+      .catch(err => next(err))
   },
   putQuestion: (req, res, next) => {
     res.json('putQuestion')
