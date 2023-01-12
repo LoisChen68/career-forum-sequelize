@@ -1,5 +1,5 @@
 const { getOffset } = require('../helpers/pagination-helper')
-const { Question, User, Answer } = require('../models')
+const { Question, User, Answer, sequelize } = require('../models')
 
 const questionController = {
   // GET api/questions 取得所有問題且附帶一筆最新回答
@@ -24,6 +24,10 @@ const questionController = {
         }
       }
       ],
+      attributes: {
+        include:
+          [[sequelize.literal('( SELECT COUNT(*) FROM Answers AS answerCount  WHERE questionId = Question.id)'), 'answersCount']]
+      },
       order: [['createdAt', 'DESC']],
       limit,
       offset
@@ -50,7 +54,7 @@ const questionController = {
           message: 'The question is not found.'
         })
         const { ...data } = question.toJSON()
-        data.answerCount = answer.count
+        data.answersCount = answer.count
         res.json(data)
       })
       .catch(err => next(err))
