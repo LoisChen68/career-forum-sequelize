@@ -20,14 +20,20 @@ passport.use(new LocalStrategy(
       .then(user => {
         if (!user) {
           const error = new Error('Incorrect email or password')
-          error.statusCode = 400
+          error.statusCode = 401
+          cb(error)
+          return
+        }
+        if (user.approvalStatus !== 'approved') {
+          const error = new Error('Unapproved user')
+          error.statusCode = 403
           cb(error)
           return
         }
         bcrypt.compare(password, user.password).then(res => {
           if (!res) {
             const error = new Error('Incorrect email or password')
-            error.statusCode = 400
+            error.statusCode = 401
             cb(error)
           }
           return cb(null, user)
