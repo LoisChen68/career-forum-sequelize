@@ -15,8 +15,8 @@ router.post('/users/register', userController.register)
 
 router.use('/users', authenticated, authApprovalStatus, users)
 router.use('/admin', authenticated, authenticatedAdmin, admin)
-router.use('/questions', authenticated, question)
-router.use('/answers', authenticated, answer)
+router.use('/questions', authenticated, authApprovalStatus, question)
+router.use('/answers', authenticated, authApprovalStatus, answer)
 router.use('/', apiErrorHandler)
 
 module.exports = router

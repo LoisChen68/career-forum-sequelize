@@ -153,7 +153,7 @@ const questionController = {
         })
         return res.json({
           status: 'success',
-          message: '成功修改回答',
+          message: '成功修改問題',
           question
         })
       })
