@@ -121,8 +121,8 @@ const userController = {
         const { password, deletedAt, approvalStatus, isAdmin, isSuspended, ...showData } = updatedUser.toJSON()
         return showData
       })
-      const updatedUserData = updatedUserDataArr[0] //把陣列轉換成物件
-      res.json({ status: 'success', message: '成功修改個人資料', user: updatedUserData })
+      const updatedUserDataObj = updatedUserDataArr[0] //把陣列轉換成物件(拿掉中括號)
+      res.json({ status: 'success', message: '成功修改個人資料', user: updatedUserDataObj })
     } catch (error) {
       next(error)
     }
@@ -135,7 +135,7 @@ const userController = {
         title: "user is not found"
       })
       const updatedUser = await user.update({
-        cover: '' || user.cover
+        cover: ''
       })
       const updatedUserData = { id: updatedUser.toJSON().id, cover: updatedUser.toJSON().cover }
       res.status(200).json({
@@ -155,7 +155,7 @@ const userController = {
         title: "user is not found"
       })
       const updatedUser = await user.update({
-        avatar: '' || user.avatar
+        avatar: ''
       })
       const updatedUserData = { id: updatedUser.toJSON().id, avatar: updatedUser.toJSON().avatar }
       res.status(200).json({
