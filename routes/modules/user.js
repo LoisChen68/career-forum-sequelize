@@ -10,6 +10,4 @@ router.patch('/:id/avatar', authCurrentUser, upload.fields({ name: 'avatar', max
 router.put('/:id', authCurrentUser, upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'cover', maxCount: 1 }]), userController.putUser)
 router.get('/:id', userController.getUser)
 
-
-
 module.exports = router
