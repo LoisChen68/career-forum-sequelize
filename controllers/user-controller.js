@@ -83,6 +83,46 @@ const userController = {
   },
   putUser: (req, res, next) => {
     res.json('putUser')
+  },
+  patchUserCover: async (req, res, next) => {
+    try {
+      const paramsId = Number(req.params.id)
+      const user = await User.findByPk(paramsId)
+      if (!user) return res.status(404).json({
+        title: "user is not found"
+      })
+      const updatedUser = await user.update({
+        cover: '' || user.cover
+      })
+      const updatedUserData = { id: updatedUser.toJSON().id, cover: updatedUser.toJSON().cover }
+      res.status(200).json({
+        status: "success",
+        message: "成功刪除封面照",
+        updatedUserData
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  patchUserAvatar: async (req, res, next) => {
+    try {
+      const paramsId = Number(req.params.id)
+      const user = await User.findByPk(paramsId)
+      if (!user) return res.status(404).json({
+        title: "user is not found"
+      })
+      const updatedUser = await user.update({
+        avatar: '' || user.avatar
+      })
+      const updatedUserData = { id: updatedUser.toJSON().id, avatar: updatedUser.toJSON().avatar }
+      res.status(200).json({
+        status: "success",
+        message: "成功刪除頭像",
+        updatedUserData
+      })
+    } catch (error) {
+      next(error)
+    }
   }
 }
 

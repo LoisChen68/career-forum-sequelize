@@ -23,8 +23,16 @@ const authApprovalStatus = (req, res, next) => {
   return res.status(403).json({ status: 'error', title: 'Unapproved user' })
 }
 
+//驗證是否為使用者本人在使用
+const authCurrentUser = (req, res, next) => {
+  const reqUser = req.user
+  if (reqUser && reqUser.id === Number(req.params.id)) return next()
+  return res.status(403).json({ status: 'error', message: 'You can only edit your own data' })
+}
+
 module.exports = {
   authenticated,
   authenticatedAdmin,
-  authApprovalStatus
+  authApprovalStatus,
+  authCurrentUser
 }
